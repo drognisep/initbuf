@@ -1,0 +1,8 @@
+version: v1
+{{- if len .Plugins }}
+plugins:
+{{- range $i, $plugin := .Plugins }}
+  - name: {{ $plugin.Name }}
+    out: {{ $plugin.Out }}
+{{- end }}
+{{- end }}

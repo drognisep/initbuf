@@ -1,0 +1,5 @@
+version: v1
+directories:
+{{- range $i, $dir := .Directories }}
+  - {{ $dir }}
+{{- end }}
