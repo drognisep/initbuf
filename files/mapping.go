@@ -18,12 +18,12 @@ func (p *GenerationPlugin) OptionString() string {
 type ManagedRules = map[string]interface{}
 
 type BufGenYaml struct {
-	Version   string             `yaml:"version"`
-	Managed   ManagedRules       `yaml:"managed,omitempty"`
-	Plugins   []GenerationPlugin `yaml:"plugins"`
-	UseGoGrpc bool               `yaml:"-"`
-	UseGoJson bool               `yaml:"-"`
-	GoOut     string             `yaml:"-"`
+	Version   string
+	Managed   ManagedRules
+	Plugins   []GenerationPlugin
+	UseGoGrpc bool
+	UseGoJson bool
+	GoOut     string
 }
 
 func (r *BufGenYaml) HasPlugins() bool {
