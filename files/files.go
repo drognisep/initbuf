@@ -73,3 +73,11 @@ func WriteBufGenYaml(path string, config *BufGenYaml) error {
 	}
 	return nil
 }
+
+func genBufGenYaml(config *BufGenYaml) (io.Reader, error) {
+	var buf strings.Builder
+	if err := bufGenYamlTmpl.Execute(&buf, config); err != nil {
+		return nil, err
+	}
+	return strings.NewReader(buf.String()), nil
+}

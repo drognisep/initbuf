@@ -1,8 +1,25 @@
-version: v1
-{{- if len .Plugins }}
+version: {{ .Version }}
+{{- if .IsManaged }}
+  managed:
+    enabled: true
+    go_package_prefix:
+      default: {{ .DefaultGoPrefix }}
+{{- end }}
+{{- if .HasPlugins }}
 plugins:
+{{- if .UseGoGrpc }}
+  - name: go-grpc # go get google.golang.org/grpc@latest && go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+    out: {{ .GoOut }}
+    opt: paths=source_relative
+{{- end }}
+{{- if .UseGoJson }}
+  - name: go-json # go install github.com/mitchellh/protoc-gen-go-json@latest
+    out: {{ .GoOut }}
+    opt: paths=source_relative
+{{- end }}
 {{- range $i, $plugin := .Plugins }}
   - name: {{ $plugin.Name }}
-    out: {{ $plugin.Out }}
+    out: {{ $plugin.OutputPath }}
+    opt: {{ $plugin.OptionString }}
 {{- end }}
 {{- end }}
