@@ -1,9 +1,9 @@
 version: {{ .Version }}
 {{- if .IsManaged }}
-  managed:
-    enabled: true
-    go_package_prefix:
-      default: {{ .DefaultGoPrefix }}
+managed:
+  enabled: true
+  go_package_prefix:
+    default: {{ .DefaultGoPrefix }}
 {{- end }}
 {{- if .HasPlugins }}
 plugins:

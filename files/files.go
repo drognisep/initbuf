@@ -3,7 +3,6 @@ package files
 
 import (
 	_ "embed"
-	"gopkg.in/yaml.v3"
 	"html/template"
 	"io"
 	"os"
@@ -24,10 +23,6 @@ var (
 
 type params = map[string]interface{}
 
-func WriteBufCwd() error {
-	return WriteBufYaml(".")
-}
-
 func WriteBufYaml(path string) error {
 	file, err := os.OpenFile(filepath.Join(path, "buf.yaml"), os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
 	if err != nil {
@@ -38,10 +33,6 @@ func WriteBufYaml(path string) error {
 		return err
 	}
 	return nil
-}
-
-func WriteBufWorkCwd(dirs ...string) error {
-	return WriteBufWorkYaml(".", dirs...)
 }
 
 func WriteBufWorkYaml(path string, dirs ...string) error {
@@ -68,7 +59,11 @@ func WriteBufGenYaml(path string, config *BufGenYaml) error {
 	}
 	defer file.Close()
 
-	if err := yaml.NewEncoder(file).Encode(config); err != nil {
+	reader, err := genBufGenYaml(config)
+	if err != nil {
+		return err
+	}
+	if _, err := io.Copy(file, reader); err != nil {
 		return err
 	}
 	return nil

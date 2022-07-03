@@ -25,10 +25,10 @@ directories:
 
 func TestGenBufGenYaml(t *testing.T) {
 	const expected = `version: v2
-  managed:
-    enabled: true
-    go_package_prefix:
-      default: testmodule/out
+managed:
+  enabled: true
+  go_package_prefix:
+    default: testmodule/out
 plugins:
   - name: go-grpc # go get google.golang.org/grpc@latest && go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
     out: out
