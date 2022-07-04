@@ -1,6 +1,9 @@
 package files
 
-import "path/filepath"
+import (
+	"path/filepath"
+	"strings"
+)
 
 type GenerationPlugin struct {
 	Name       string   `yaml:"name"`
@@ -8,12 +11,23 @@ type GenerationPlugin struct {
 	Options    []string `yaml:"opt,omitempty"`
 }
 
+func (p *GenerationPlugin) OptionString() string {
+	return strings.Join(p.Options, ",")
+}
+
 type ManagedRules = map[string]interface{}
 
 type BufGenYaml struct {
-	Version string             `yaml:"version"`
-	Managed ManagedRules       `yaml:"managed,omitempty"`
-	Plugins []GenerationPlugin `yaml:"plugins"`
+	Version   string
+	Managed   ManagedRules
+	Plugins   []GenerationPlugin
+	UseGoGrpc bool
+	UseGoJson bool
+	GoOut     string
+}
+
+func (r *BufGenYaml) HasPlugins() bool {
+	return len(r.Plugins) > 0 || r.UseGoGrpc || r.UseGoJson
 }
 
 func (r *BufGenYaml) IsManaged() bool {
@@ -55,6 +69,31 @@ func (r *BufGenYaml) SetDefaultGoPrefix(outputDir string) error {
 		"default": module,
 	}
 	return nil
+}
+
+func (r *BufGenYaml) DefaultGoPrefix() string {
+	const defaultVal = ""
+
+	if r.Managed == nil {
+		return defaultVal
+	}
+	iprefix, hasPrefix := r.Managed["go_package_prefix"]
+	if !hasPrefix {
+		return defaultVal
+	}
+	prefix, ok := iprefix.(ManagedRules)
+	if !ok {
+		return defaultVal
+	}
+	imodule, hasDefault := prefix["default"]
+	if !hasDefault {
+		return defaultVal
+	}
+	module, ok := imodule.(string)
+	if !ok {
+		return defaultVal
+	}
+	return module
 }
 
 type BufWorkYaml struct {

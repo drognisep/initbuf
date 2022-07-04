@@ -12,12 +12,14 @@ func main() {
 	config := struct {
 		goOut             string
 		genGrpc           bool
+		genJson           bool
 		managedGeneration bool
 		protoDirs         []string
 	}{}
 
 	flag.StringVar(&config.goOut, "go-out", "", "Sets the Go output directory")
 	flag.BoolVar(&config.genGrpc, "gen-grpc", false, "Use the protoc-gen-go-grpc plugin")
+	flag.BoolVar(&config.genJson, "gen-json", false, "Use the protoc-gen-go-json plugin")
 	flag.BoolVar(&config.managedGeneration, "managed", true, "Sets whether code generation should be managed")
 	flag.StringSliceVar(&config.protoDirs, "proto-dir", nil, "Adds a protobuf root directory. Should be relative to the module root.")
 	flag.Parse()
@@ -55,6 +57,9 @@ func main() {
 				Options:    []string{"paths=source_relative"},
 			},
 		},
+		GoOut:     config.goOut,
+		UseGoGrpc: config.genGrpc,
+		UseGoJson: config.genJson,
 	}
 	if config.managedGeneration {
 		genYaml.Managed["enabled"] = true
@@ -62,13 +67,6 @@ func main() {
 			fmt.Printf("Error getting default go prefix: %v\n", err)
 			os.Exit(1)
 		}
-	}
-	if config.genGrpc {
-		genYaml.Plugins = append(genYaml.Plugins, files.GenerationPlugin{
-			Name:       "go-grpc",
-			OutputPath: config.goOut,
-			Options:    []string{"paths=source_relative"},
-		})
 	}
 	if err := files.WriteBufGenYaml(root, &genYaml); err != nil {
 		fmt.Printf("Error generating buf.gen.yaml: %v\n", err)
@@ -78,11 +76,15 @@ func main() {
 
 Make sure these dependencies are installed:
  - buf (https://docs.buf.build/installation)
- - google.golang.org/protobuf (added to this module)
+ - google.golang.org/protobuf (add to this module)
  - google.golang.org/protobuf/cmd/protoc-gen-go
 `
 	if config.genGrpc {
+		deps += " - google.golang.org/grpc (add to this module)\n"
 		deps += " - google.golang.org/grpc/cmd/protoc-gen-go-grpc\n"
+	}
+	if config.genJson {
+		deps += " - github.com/mitchellh/protoc-gen-go-json\n"
 	}
 	fmt.Println(deps)
 }
